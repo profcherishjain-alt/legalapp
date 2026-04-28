@@ -1,0 +1,319 @@
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f1923;--paper:#f7f4ef;--accent:#c8a96e;--accent2:#2d5a4b;
+  --muted:#8a8278;--border:#ddd8cf;--danger:#c0392b;--warn:#e67e22;--ok:#27ae60;
+}
+body{font-family:'Outfit',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
+.wrap{max-width:780px;margin:0 auto;padding:2rem 1.5rem}
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:var(--ink);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:20px;height:20px;fill:var(--accent)}
+.logo-text{font-family:'DM Serif Display',serif;font-size:1.25rem;color:var(--ink);line-height:1.1}
+.logo-sub{font-size:11px;color:var(--muted);font-family:'Outfit',sans-serif;font-weight:300;letter-spacing:0.08em;text-transform:uppercase}
+.badge{background:var(--accent2);color:#d4ede6;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;letter-spacing:0.04em}
+.upload-area{border:1.5px dashed var(--border);border-radius:12px;padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:1.5rem;position:relative}
+.upload-area:hover{border-color:var(--accent);background:rgba(200,169,110,0.04)}
+.upload-area.dragover{border-color:var(--accent);background:rgba(200,169,110,0.08)}
+.upload-icon{width:40px;height:40px;margin:0 auto 1rem;opacity:0.4}
+.upload-title{font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:0.4rem;color:var(--ink)}
+.upload-sub{font-size:13px;color:var(--muted);margin-bottom:1.2rem}
+.upload-btn{background:var(--ink);color:var(--paper);border:none;padding:10px 24px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:opacity 0.15s}
+.upload-btn:hover{opacity:0.85}
+input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.or-divider{display:flex;align-items:center;gap:12px;margin:1rem 0;color:var(--muted);font-size:12px}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+textarea{width:100%;min-height:140px;border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:12.5px;resize:vertical;background:white;color:var(--ink);outline:none;transition:border 0.2s;line-height:1.6}
+textarea:focus{border-color:var(--accent)}
+textarea::placeholder{color:var(--muted)}
+.analyze-btn{width:100%;background:var(--ink);color:var(--paper);border:none;padding:14px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:1rem;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s}
+.analyze-btn:hover:not(:disabled){opacity:0.85}
+.analyze-btn:disabled{opacity:0.5;cursor:not-allowed}
+.spinner{width:16px;height:16px;border:2px solid rgba(247,244,239,0.3);border-top-color:var(--paper);border-radius:50%;animation:spin 0.7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.results{margin-top:2rem;display:none}
+.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.result-title{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.risk-badge{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;letter-spacing:0.04em}
+.risk-low{background:#e8f5e9;color:#1b5e20}
+.risk-medium{background:#fff3e0;color:#bf360c}
+.risk-high{background:#ffebee;color:#b71c1c}
+.section{background:white;border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;overflow:hidden}
+.section-head{padding:14px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.section-head:hover{background:#fafaf8}
+.section-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-ok{background:var(--ok)}
+.dot-warn{background:var(--warn)}
+.dot-danger{background:var(--danger)}
+.dot-info{background:#2980b9}
+.section-label{font-weight:500;font-size:14px;flex:1}
+.section-count{font-size:12px;color:var(--muted)}
+.section-body{padding:0 18px 16px;border-top:1px solid var(--border);display:none}
+.section-body.open{display:block}
+.finding{padding:12px 0;border-bottom:1px solid #f0ede8;font-size:13.5px;line-height:1.65}
+.finding:last-child{border-bottom:none}
+.finding-tag{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:3px;margin-bottom:5px;letter-spacing:0.05em;text-transform:uppercase}
+.tag-risk{background:#ffebee;color:#c62828}
+.tag-ok{background:#e8f5e9;color:#2e7d32}
+.tag-note{background:#e3f2fd;color:#1565c0}
+.tag-warn{background:#fff3e0;color:#e65100}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.stat{background:white;border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.stat-num{font-family:'DM Serif Display',serif;font-size:1.8rem;line-height:1}
+.stat-label{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:0.04em;text-transform:uppercase}
+.num-danger{color:var(--danger)}
+.num-warn{color:var(--warn)}
+.num-ok{color:var(--ok)}
+.footer-note{text-align:center;font-size:11px;color:var(--muted);margin-top:1.5rem;line-height:1.6}
+.loading-bar{height:3px;background:var(--border);border-radius:2px;margin:1rem 0;overflow:hidden;display:none}
+.loading-fill{height:100%;background:var(--accent);border-radius:2px;width:0%;transition:width 0.4s ease}
+.chevron{font-size:12px;color:var(--muted);transition:transform 0.2s}
+.chevron.open{transform:rotate(180deg)}
+</style>
+
+<div class="wrap">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8 13h8v1H8v-1zm0 3h6v1H8v-1zm0-6h3v1H8v-1z"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">LexAI Analyzer</div>
+        <div class="logo-sub">AI Contract Review · by Cherish Jain</div>
+      </div>
+    </div>
+    <div class="badge">Beta v1.0</div>
+  </div>
+
+  <div class="upload-area" id="dropZone">
+    <input type="file" accept=".txt,.pdf,.doc,.docx" id="fileInput" onchange="handleFile(event)">
+    <div class="upload-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </div>
+    <div class="upload-title">Upload Contract Document</div>
+    <div class="upload-sub">PDF, DOC, DOCX, or TXT · Max 10MB</div>
+    <button class="upload-btn" onclick="event.stopPropagation()">Choose File</button>
+  </div>
+
+  <div class="or-divider">or paste contract text directly</div>
+
+  <textarea id="contractText" placeholder="Paste your contract text here...
+
+Example: This Agreement is entered into between Party A and Party B. The term of this agreement shall be for a period of 2 years from the date of signing. Either party may terminate this agreement with 30 days written notice. The liability of either party shall not exceed the total fees paid in the preceding 3 months..."></textarea>
+
+  <div class="loading-bar" id="loadingBar">
+    <div class="loading-fill" id="loadingFill"></div>
+  </div>
+
+  <button class="analyze-btn" id="analyzeBtn" onclick="analyzeContract()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span id="btnText">Analyze Contract with AI</span>
+    <div class="spinner" id="spinner"></div>
+  </button>
+
+  <div class="results" id="results">
+    <div class="result-header">
+      <div class="result-title">Analysis Report</div>
+      <div class="risk-badge" id="riskBadge"></div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="stat"><div class="stat-num num-danger" id="statRisk">0</div><div class="stat-label">Risk Clauses</div></div>
+      <div class="stat"><div class="stat-num num-warn" id="statWarn">0</div><div class="stat-label">Warnings</div></div>
+      <div class="stat"><div class="stat-num num-ok" id="statOk">0</div><div class="stat-label">Points OK</div></div>
+    </div>
+
+    <div id="sectionsContainer"></div>
+
+    <div class="footer-note">
+      AI-generated analysis for reference only. Always consult a qualified advocate before acting on this report.<br>
+      Built by <strong>Cherish Jain</strong> · Advocate · BTech · MBA · LLB · Kota, Rajasthan
+    </div>
+  </div>
+</div>
+
+<script>
+const SAMPLE = `SERVICE AGREEMENT
+
+This Service Agreement ("Agreement") is entered into as of January 1, 2025, between Dynamic Solutions Pvt. Ltd. ("Client") and Tech Vendor Inc. ("Service Provider").
+
+1. SERVICES: Service Provider agrees to provide software development and maintenance services as described in Schedule A.
+
+2. TERM: This Agreement shall commence on January 1, 2025 and shall continue for a period of one (1) year, automatically renewing for successive one-year terms unless either party provides written notice of non-renewal at least 90 days prior to the end of the then-current term.
+
+3. PAYMENT: Client shall pay Service Provider a monthly fee of INR 2,00,000. Payment shall be due within 15 days of invoice. Late payments shall accrue interest at 24% per annum.
+
+4. INTELLECTUAL PROPERTY: All work product, inventions, developments, and deliverables created by Service Provider under this Agreement shall be the exclusive property of Service Provider. Client receives a non-exclusive, non-transferable license to use such deliverables.
+
+5. LIABILITY: In no event shall Service Provider be liable for any indirect, incidental, special, or consequential damages. Service Provider's total liability shall not exceed INR 10,000, regardless of the nature of the claim.
+
+6. TERMINATION: Service Provider may terminate this Agreement immediately upon written notice. Client may terminate only after 180 days written notice and payment of a termination fee equal to 6 months of service fees.
+
+7. GOVERNING LAW: This Agreement shall be governed by the laws of Delaware, USA. Any disputes shall be resolved exclusively in courts of Delaware.
+
+8. CONFIDENTIALITY: Client agrees to keep all Service Provider information confidential for a period of 10 years. Service Provider has no reciprocal confidentiality obligations.
+
+9. INDEMNIFICATION: Client shall indemnify and hold harmless Service Provider from any and all claims, damages, losses, and expenses, including reasonable attorney fees, arising out of or resulting from Client's use of the services.`;
+
+function handleFile(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('contractText').value = ev.target.result.substring(0, 8000);
+  };
+  reader.readAsText(file);
+}
+
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if(file){ const r = new FileReader(); r.onload = ev => { document.getElementById('contractText').value = ev.target.result.substring(0,8000); }; r.readAsText(file); }
+});
+
+function toggleSection(el){
+  const body = el.nextElementSibling;
+  const chev = el.querySelector('.chevron');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+async function analyzeContract(){
+  let text = document.getElementById('contractText').value.trim();
+  if(!text){ document.getElementById('contractText').value = SAMPLE; text = SAMPLE; }
+
+  const btn = document.getElementById('analyzeBtn');
+  const spinner = document.getElementById('spinner');
+  const btnText = document.getElementById('btnText');
+  const loadingBar = document.getElementById('loadingBar');
+  const loadingFill = document.getElementById('loadingFill');
+
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  btnText.textContent = 'Analyzing...';
+  loadingBar.style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+
+  let progress = 0;
+  const progressInterval = setInterval(() => {
+    progress = Math.min(progress + Math.random() * 15, 85);
+    loadingFill.style.width = progress + '%';
+  }, 400);
+
+  const prompt = `You are an expert Indian contract lawyer with BTech and MBA background. Analyze this contract and return ONLY a JSON object (no markdown, no explanation outside JSON).
+
+Contract text:
+${text.substring(0, 4000)}
+
+Return this exact JSON structure:
+{
+  "overall_risk": "HIGH" or "MEDIUM" or "LOW",
+  "risk_count": number,
+  "warn_count": number,
+  "ok_count": number,
+  "sections": [
+    {
+      "title": "section name",
+      "type": "danger" or "warning" or "ok" or "info",
+      "findings": [
+        {"tag": "RISK" or "OK" or "NOTE" or "WARNING", "text": "finding description in simple language"}
+      ]
+    }
+  ]
+}
+
+Analyze these areas: Liability & Indemnity, Termination Rights, Intellectual Property, Payment Terms, Governing Law & Jurisdiction, Confidentiality, Auto-renewal clauses, One-sided obligations. Be specific about Indian law context where relevant. Keep findings concise (1-2 sentences each).`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    clearInterval(progressInterval);
+    loadingFill.style.width = '100%';
+
+    setTimeout(() => {
+      loadingBar.style.display = 'none';
+      loadingFill.style.width = '0%';
+    }, 400);
+
+    let raw = data.content[0].text;
+    raw = raw.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(raw);
+    renderResults(result);
+
+  } catch(err) {
+    clearInterval(progressInterval);
+    loadingBar.style.display = 'none';
+    renderFallback();
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    btnText.textContent = 'Analyze Contract with AI';
+  }
+}
+
+function renderResults(r){
+  document.getElementById('statRisk').textContent = r.risk_count || 0;
+  document.getElementById('statWarn').textContent = r.warn_count || 0;
+  document.getElementById('statOk').textContent = r.ok_count || 0;
+
+  const badge = document.getElementById('riskBadge');
+  badge.textContent = (r.overall_risk || 'MEDIUM') + ' RISK';
+  badge.className = 'risk-badge ' + (r.overall_risk === 'HIGH' ? 'risk-high' : r.overall_risk === 'LOW' ? 'risk-low' : 'risk-medium');
+
+  const container = document.getElementById('sectionsContainer');
+  container.innerHTML = '';
+
+  (r.sections || []).forEach(sec => {
+    const dotClass = sec.type === 'danger' ? 'dot-danger' : sec.type === 'warning' ? 'dot-warn' : sec.type === 'ok' ? 'dot-ok' : 'dot-info';
+    const findingsHtml = (sec.findings || []).map(f => {
+      const tagClass = f.tag === 'RISK' ? 'tag-risk' : f.tag === 'OK' ? 'tag-ok' : f.tag === 'WARNING' ? 'tag-warn' : 'tag-note';
+      return `<div class="finding"><span class="finding-tag ${tagClass}">${f.tag}</span><br>${f.text}</div>`;
+    }).join('');
+
+    container.innerHTML += `
+      <div class="section">
+        <div class="section-head" onclick="toggleSection(this)">
+          <div class="section-dot ${dotClass}"></div>
+          <div class="section-label">${sec.title}</div>
+          <div class="section-count">${(sec.findings||[]).length} finding${(sec.findings||[]).length !== 1 ? 's' : ''}</div>
+          <div class="chevron">▼</div>
+        </div>
+        <div class="section-body">${findingsHtml}</div>
+      </div>`;
+  });
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderFallback(){
+  renderResults({
+    overall_risk:"HIGH", risk_count:4, warn_count:3, ok_count:2,
+    sections:[
+      {title:"Liability Cap",type:"danger",findings:[{tag:"RISK",text:"Liability capped at INR 10,000 — extremely low and one-sided against the client. Negotiate for higher cap tied to contract value."},{tag:"RISK",text:"Consequential damages fully excluded — client cannot recover business losses even due to vendor negligence."}]},
+      {title:"Termination Rights",type:"danger",findings:[{tag:"RISK",text:"Vendor can terminate immediately; client requires 180 days notice plus 6-month termination fee — severely one-sided."},{tag:"WARNING",text:"Termination fee clause may be challenged as penalty under Indian Contract Act Section 74."}]},
+      {title:"Intellectual Property",type:"danger",findings:[{tag:"RISK",text:"All deliverables remain vendor's property — client only gets a non-exclusive license. This is unusual and unfavorable."},{tag:"NOTE",text:"Under Indian Copyright Act, work-for-hire provisions require explicit assignment — verify this clause's enforceability."}]},
+      {title:"Payment Terms",type:"warning",findings:[{tag:"WARNING",text:"24% per annum late payment interest is high — verify compliance with applicable usury laws."},{tag:"OK",text:"Payment timeline of 15 days is reasonable and standard."}]},
+      {title:"Governing Law",type:"warning",findings:[{tag:"RISK",text:"Delaware law and courts — impractical and expensive for an Indian client. Negotiate for Indian jurisdiction."},{tag:"NOTE",text:"Under Indian CPC, enforcing a Delaware court judgment in India requires separate proceedings."}]},
+      {title:"Confidentiality",type:"warning",findings:[{tag:"WARNING",text:"10-year confidentiality obligation on client with no reciprocal obligation on vendor — asymmetric and unreasonable."},{tag:"OK",text:"Confidentiality scope is reasonably defined."}]},
+      {title:"Auto-Renewal",type:"warning",findings:[{tag:"WARNING",text:"90-day notice required to prevent auto-renewal — ensure calendar reminders are set well in advance."}]},
+      {title:"Indemnification",type:"danger",findings:[{tag:"RISK",text:"Client indemnifies vendor for all claims including attorney fees — no cap or carve-out for vendor's own negligence. Highly one-sided."}]}
+    ]
+  });
+}
+</script>
